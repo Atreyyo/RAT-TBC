@@ -42,10 +42,12 @@ cdtbl = {
 	["Kick"] = "Interface\\Icons\\Ability_Kick",
 	["Reincarnation"] = "Interface\\Icons\\Spell_Nature_Reincarnation",
 	["Mana Tide Totem"] = "Interface\\Icons\\Spell_Frost_SummonWaterElemental",
-	["Ritual of Souls"] = "",
-	["Soulshatter"] = "",
-	["Heroism"] = "",
-	["Bloodlust"] = "",
+	["Ritual of Souls"] = "Interface\\Icons\\Spell_Shadow_Shadesofdarkness",
+	["Soulshatter"] = "Interface\\Icons\\Spell_Arcane_Arcane01",
+	["Heroism"] = "Interface\\Icons\\Ability_Shaman_Heroism",
+	["Bloodlust"] = "Interface\\Icons\\Ability_Shaman_Bloodlust",
+	["Chain Lightning"] = "Interface\\Icons\\Spell_Nature_ChainLightning",
+	["Elemental Mastery"] = "Interface\\Icons\\Spell_Nature_WispHeal",
 	
 }
 
@@ -537,7 +539,7 @@ function Rat.Mainframe:ConfigFrame()
 	self.PaladinFrame:SetWidth(16)
 	self.PaladinFrame:SetHeight(16)
 	self.PaladinFrame:SetBackdropColor(0,0,0,1)
-	self.PaladinFrame:SetPoint('TOPRIGHT', -58, -1)
+	self.PaladinFrame:SetPoint('TOPRIGHT', -126, -1)
 	self.PaladinFrame:SetFrameStrata('MEDIUM')
 	self.PaladinFrame.Icon = self.PaladinFrame:CreateTexture(nil, 'ARTWORK')
 	self.PaladinFrame.Icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
@@ -781,7 +783,7 @@ function Rat.Options:ConfigFrame()
 	}
 	
 	self:SetFrameStrata("BACKGROUND")
-	self:SetWidth(875) -- Set these to whatever height/width is needed 
+	self:SetWidth(1005) -- Set these to whatever height/width is needed 
 	self:SetHeight(400) -- for your Texture
 	self:SetPoint("CENTER",UIParent,"CENTER",0,0)
 	self:SetMovable(1)
@@ -809,7 +811,7 @@ function Rat.Options:ConfigFrame()
 	-- Topleft Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-bid-topleft"}  -- path to the background texture
 	self.Background.Topleft:SetFrameStrata("BACKGROUND")
-	self.Background.Topleft:SetWidth(200) -- Set these to whatever height/width is needed 
+	self.Background.Topleft:SetWidth(245) -- Set these to whatever height/width is needed 
 	self.Background.Topleft:SetHeight(200) -- for your Texture
 	self.Background.Topleft:SetBackdrop(backdrop)
 	self.Background.Topleft:SetPoint("TOPLEFT", self, -7, 9)
@@ -817,23 +819,23 @@ function Rat.Options:ConfigFrame()
 	-- Topmid Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-auction-top"}  -- path to the background texture
 	self.Background.Topmid:SetFrameStrata("BACKGROUND")
-	self.Background.Topmid:SetWidth(482) -- Set these to whatever height/width is needed 
+	self.Background.Topmid:SetWidth(527) -- Set these to whatever height/width is needed 
 	self.Background.Topmid:SetHeight(200) -- for your Texture
 	self.Background.Topmid:SetBackdrop(backdrop)
-	self.Background.Topmid:SetPoint("TOPLEFT", self, "TOPLEFT", 193, 9)
+	self.Background.Topmid:SetPoint("TOPLEFT", self, "TOPLEFT", 238, 9)
 	
 	-- Topright Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-auction-topright"}  -- path to the background texture
 	self.Background.Topright:SetFrameStrata("BACKGROUND")
-	self.Background.Topright:SetWidth(200) -- Set these to whatever height/width is needed 
+	self.Background.Topright:SetWidth(245) -- Set these to whatever height/width is needed 
 	self.Background.Topright:SetHeight(200) -- for your Texture
 	self.Background.Topright:SetBackdrop(backdrop)
-	self.Background.Topright:SetPoint("TOPLEFT", self, "TOPLEFT", 675, 9)
+	self.Background.Topright:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, 9)
 	
 	-- Bottomleft Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-bid-botleft"}  -- path to the background texture
 	self.Background.Bottomleft:SetFrameStrata("BACKGROUND")
-	self.Background.Bottomleft:SetWidth(200) -- Set these to whatever height/width is needed 
+	self.Background.Bottomleft:SetWidth(245) -- Set these to whatever height/width is needed 
 	self.Background.Bottomleft:SetHeight(296) -- for your Texture
 	self.Background.Bottomleft:SetBackdrop(backdrop)
 	self.Background.Bottomleft:SetPoint("TOPLEFT", self, "TOPLEFT", -7, -191)
@@ -841,23 +843,23 @@ function Rat.Options:ConfigFrame()
 	-- Bottommid Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-auction-bot"}  -- path to the background texture
 	self.Background.Bottommid:SetFrameStrata("BACKGROUND")
-	self.Background.Bottommid:SetWidth(482) -- Set these to whatever height/width is needed 
+	self.Background.Bottommid:SetWidth(527) -- Set these to whatever height/width is needed 
 	self.Background.Bottommid:SetHeight(296) -- for your Texture
 	self.Background.Bottommid:SetBackdrop(backdrop)
-	self.Background.Bottommid:SetPoint("TOPLEFT", self, "TOPLEFT", 193, -191)
+	self.Background.Bottommid:SetPoint("TOPLEFT", self, "TOPLEFT", 238, -191)
 	
 	-- Bottomright Background Frame
 	local backdrop = {bgFile = "Interface\\auctionframe\\ui-auctionframe-browse-botright"}  -- path to the background texture
 	self.Background.Bottomright:SetFrameStrata("BACKGROUND")
-	self.Background.Bottomright:SetWidth(200) -- Set these to whatever height/width is needed 
+	self.Background.Bottomright:SetWidth(245) -- Set these to whatever height/width is needed 
 	self.Background.Bottomright:SetHeight(296) -- for your Texture
 	self.Background.Bottomright:SetBackdrop(backdrop)
-	self.Background.Bottomright:SetPoint("TOPLEFT", self, "TOPLEFT", 675, -191)
+	self.Background.Bottomright:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, -87)
 	
 	-- Tab1 Background Frame
 	local backdrop = {bgFile = "Interface\\raidframe\\ui-raidframe-groupbg"}  -- path to the background texture
 	self.Background.Tab1:SetFrameStrata("LOW")
-	self.Background.Tab1:SetWidth(865) -- Set these to whatever height/width is needed 
+	self.Background.Tab1:SetWidth(995) -- Set these to whatever height/width is needed 
 	self.Background.Tab1:SetHeight(348) -- for your Texture
 	self.Background.Tab1:SetBackdrop(backdrop)
 	self.Background.Tab1:SetPoint("TOPLEFT", self, "TOPLEFT", 6, -48)	
@@ -865,7 +867,7 @@ function Rat.Options:ConfigFrame()
 	-- Tab2 Background Frame
 	local backdrop = {bgFile = "Interface\\raidframe\\ui-raidframe-groupbg"}  -- path to the background texture
 	self.Background.Tab2:SetFrameStrata("LOW")
-	self.Background.Tab2:SetWidth(865) -- Set these to whatever height/width is needed 
+	self.Background.Tab2:SetWidth(995) -- Set these to whatever height/width is needed 
 	self.Background.Tab2:SetHeight(348) -- for your Texture
 	self.Background.Tab2:SetBackdrop(backdrop)
 	self.Background.Tab2:SetPoint("TOPLEFT", self, "TOPLEFT", 6, -48)	
@@ -1077,14 +1079,14 @@ function Rat.Options:ConfigFrame()
 	
 	-- border
 	self.left = self.Background.Tab1:CreateTexture(nil, "BORDER")
-	self.left:SetWidth(502.5)
+	self.left:SetWidth(567.5)
 	self.left:SetHeight(2)
 	self.left:SetPoint('TOPLEFT', -70, -60)
 	self.left:SetTexture(1, 1, 1, 1)
 	self.left:SetGradientAlpha("Horizontal", 0, 0, 0, 0, 1, 1, 1, 0.8)
 
 	self.right = self.Background.Tab1:CreateTexture(nil, "BORDER")
-	self.right:SetWidth(502.5)
+	self.right:SetWidth(567.5)
 	self.right:SetHeight(2)
 	self.right:SetPoint('TOPRIGHT', 70, -60)
 	self.right:SetTexture(1, 1, 1, 1)
@@ -1171,7 +1173,7 @@ function Rat.Options:ConfigFrame()
 	self.Shaman = CreateFrame("Frame",nil,self.Background.Tab1) -- shaman class frame
 	self.Shaman:SetWidth(125)
 	self.Shaman:SetHeight(250)
-	self.Shaman:SetPoint('TOPLEFT', 440, -70)
+	self.Shaman:SetPoint('TOPLEFT', 580, -70)
 	self.Shaman:SetBackdrop(backdrop)
 	self.Shaman:SetBackdropColor(0,0,0,1)
 	self.Shaman.Icon = self.Shaman:CreateTexture(nil, 'ARTWORK')
@@ -1186,7 +1188,7 @@ function Rat.Options:ConfigFrame()
 	self.Hunter = CreateFrame("Frame",nil,self.Background.Tab1) -- hunter class frame
 	self.Hunter:SetWidth(125)
 	self.Hunter:SetHeight(250)
-	self.Hunter:SetPoint('TOPLEFT', 580, -70)
+	self.Hunter:SetPoint('TOPLEFT', 720, -70)
 	self.Hunter:SetBackdrop(backdrop)
 	self.Hunter:SetBackdropColor(0,0,0,1)
 	self.Hunter.Icon = self.Hunter:CreateTexture(nil, 'ARTWORK')
@@ -1201,7 +1203,7 @@ function Rat.Options:ConfigFrame()
 	self.Druid = CreateFrame("Frame",nil,self.Background.Tab1) -- druid class frame
 	self.Druid:SetWidth(125)
 	self.Druid:SetHeight(250)
-	self.Druid:SetPoint('TOPLEFT', 720, -70)
+	self.Druid:SetPoint('TOPLEFT', 860, -70)
 	self.Druid:SetBackdrop(backdrop)
 	self.Druid:SetBackdropColor(0,0,0,1)
 	self.Druid.Icon = self.Druid:CreateTexture(nil, 'ARTWORK')
@@ -1408,6 +1410,70 @@ function Rat.Options:ConfigFrame()
 	text:SetTextColor(1, 1, 1, 1)
 	text:SetShadowOffset(2,-2)
     text:SetText("Major Soulstone")
+	
+	-- Ritual of Souls
+	local Checkbox = CreateFrame("CheckButton", "Ritual of Souls", self.Warlock, "UICheckButtonTemplate")
+	Checkbox:SetPoint("CENTER",0,35)
+	Checkbox:SetWidth(35)
+	Checkbox:SetHeight(35)
+	Checkbox:SetFrameStrata("LOW")
+	Checkbox:SetScript("OnClick", function () 
+		if Checkbox:GetChecked() == nil then 
+			Rat_Settings["Ritual of Souls"] = nil
+		elseif Checkbox:GetChecked() == 1 then 
+			Rat_Settings["Ritual of Souls"] = 1 
+		end
+		end)
+	Checkbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	Checkbox:SetChecked(Rat_Settings["Ritual of Souls"])
+	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+	Icon:SetTexture(cdtbl["Ritual of Souls"])
+	Icon:SetWidth(25)
+	Icon:SetHeight(25)
+	Icon:SetPoint("CENTER",0,0)
+	local text = self.Warlock:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+    text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	text:SetTextColor(1, 1, 1, 1)
+	text:SetShadowOffset(2,-2)
+    text:SetText("Ritual of Souls")
+	
+	-- Soulshatter
+	local Checkbox = CreateFrame("CheckButton", "Soulshatter", self.Warlock, "UICheckButtonTemplate")
+	Checkbox:SetPoint("CENTER",0,-10)
+	Checkbox:SetWidth(35)
+	Checkbox:SetHeight(35)
+	Checkbox:SetFrameStrata("LOW")
+	Checkbox:SetScript("OnClick", function () 
+		if Checkbox:GetChecked() == nil then 
+			Rat_Settings["Soulshatter"] = nil
+		elseif Checkbox:GetChecked() == 1 then 
+			Rat_Settings["Soulshatter"] = 1 
+		end
+		end)
+	Checkbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	Checkbox:SetChecked(Rat_Settings["Soulshatter"])
+	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+	Icon:SetTexture(cdtbl["Soulshatter"])
+	Icon:SetWidth(25)
+	Icon:SetHeight(25)
+	Icon:SetPoint("CENTER",0,0)
+	local text = self.Warlock:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+    text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	text:SetTextColor(1, 1, 1, 1)
+	text:SetShadowOffset(2,-2)
+    text:SetText("Soulshatter")
 	
 	-- Rogue
 	
@@ -1638,6 +1704,137 @@ function Rat.Options:ConfigFrame()
 	text:SetTextColor(1, 1, 1, 1)
 	text:SetShadowOffset(2,-2)
     text:SetText("Reincarnation")
+
+	-- Elemental Mastery
+	local Checkbox = CreateFrame("CheckButton", "Elemental Mastery", self.Shaman, "UICheckButtonTemplate")
+	Checkbox:SetPoint("CENTER",0,-10)
+	Checkbox:SetWidth(35)
+	Checkbox:SetHeight(35)
+	Checkbox:SetFrameStrata("LOW")
+	Checkbox:SetScript("OnClick", function () 
+		if Checkbox:GetChecked() == nil then 
+			Rat_Settings["Elemental Mastery"] = nil
+		elseif Checkbox:GetChecked() == 1 then 
+			Rat_Settings["Elemental Mastery"] = 1 
+		end
+		end)
+	Checkbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	Checkbox:SetChecked(Rat_Settings["Elemental Mastery"])
+	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+	Icon:SetTexture(cdtbl["Elemental Mastery"])
+	Icon:SetWidth(25)
+	Icon:SetHeight(25)
+	Icon:SetPoint("CENTER",0,0)
+	local text = self.Shaman:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+    text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	text:SetTextColor(1, 1, 1, 1)
+	text:SetShadowOffset(2,-2)
+    text:SetText("Elemental Mastery")
+	
+	-- Chain Lightning
+	local Checkbox = CreateFrame("CheckButton", "Chain Lightning", self.Shaman, "UICheckButtonTemplate")
+	Checkbox:SetPoint("CENTER",0,-55)
+	Checkbox:SetWidth(35)
+	Checkbox:SetHeight(35)
+	Checkbox:SetFrameStrata("LOW")
+	Checkbox:SetScript("OnClick", function () 
+		if Checkbox:GetChecked() == nil then 
+			Rat_Settings["Chain Lightning"] = nil
+		elseif Checkbox:GetChecked() == 1 then 
+			Rat_Settings["Chain Lightning"] = 1 
+		end
+		end)
+	Checkbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	Checkbox:SetChecked(Rat_Settings["Chain Lightning"])
+	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+	Icon:SetTexture(cdtbl["Chain Lightning"])
+	Icon:SetWidth(25)
+	Icon:SetHeight(25)
+	Icon:SetPoint("CENTER",0,0)
+	local text = self.Shaman:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+    text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	text:SetTextColor(1, 1, 1, 1)
+	text:SetShadowOffset(2,-2)
+    text:SetText("Chain Lightning")
+	
+	if UnitFactionGroup("player") == "Horde" then
+		-- Bloodlust
+		local Checkbox = CreateFrame("CheckButton", "Bloodlust", self.Shaman, "UICheckButtonTemplate")
+		Checkbox:SetPoint("CENTER",0,-100)
+		Checkbox:SetWidth(35)
+		Checkbox:SetHeight(35)
+		Checkbox:SetFrameStrata("LOW")
+		Checkbox:SetScript("OnClick", function () 
+			if Checkbox:GetChecked() == nil then 
+				Rat_Settings["Bloodlust"] = nil
+			elseif Checkbox:GetChecked() == 1 then 
+				Rat_Settings["Bloodlust"] = 1 
+			end
+			end)
+		Checkbox:SetScript("OnEnter", function() 
+			GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+			GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+			GameTooltip:Show()
+		end)
+		Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+		Checkbox:SetChecked(Rat_Settings["Bloodlust"])
+		local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+		Icon:SetTexture(cdtbl["Bloodlust"])
+		Icon:SetWidth(25)
+		Icon:SetHeight(25)
+		Icon:SetPoint("CENTER",0,0)
+		local text = self.Shaman:CreateFontString(nil, "OVERLAY")
+		text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+		text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+		text:SetTextColor(1, 1, 1, 1)
+		text:SetShadowOffset(2,-2)
+		text:SetText("Bloodlust")
+	
+	else
+		-- Heroism
+		local Checkbox = CreateFrame("CheckButton", "Heroism", self.Shaman, "UICheckButtonTemplate")
+		Checkbox:SetPoint("CENTER",0,-100)
+		Checkbox:SetWidth(35)
+		Checkbox:SetHeight(35)
+		Checkbox:SetFrameStrata("LOW")
+		Checkbox:SetScript("OnClick", function () 
+			if Checkbox:GetChecked() == nil then 
+				Rat_Settings["Heroism"] = nil
+			elseif Checkbox:GetChecked() == 1 then 
+				Rat_Settings["Heroism"] = 1 
+			end
+			end)
+		Checkbox:SetScript("OnEnter", function() 
+			GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+			GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+			GameTooltip:Show()
+		end)
+		Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+		Checkbox:SetChecked(Rat_Settings["Heroism"])
+		local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+		Icon:SetTexture(cdtbl["Heroism"])
+		Icon:SetWidth(25)
+		Icon:SetHeight(25)
+		Icon:SetPoint("CENTER",0,0)
+		local text = self.Shaman:CreateFontString(nil, "OVERLAY")
+		text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+		text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+		text:SetTextColor(1, 1, 1, 1)
+		text:SetShadowOffset(2,-2)
+		text:SetText("Heroism")
+	end
 	
 	-- Hunter
 	
@@ -2496,6 +2693,7 @@ function Rat:Update(force)
 	else
 		Rat.Mainframe:Hide()
 	end
+	--[[
 	if UnitFactionGroup("player") == "Alliance" then
 		if not Rat.Mainframe.PaladinFrame:IsVisible() then
 			Rat.Mainframe.PaladinFrame:Show()
@@ -2523,6 +2721,7 @@ function Rat:Update(force)
 			Rat.Options.Paladin:Hide()
 		end
 	end
+	]]
 	if Rat_Settings["Minimap"] == nil then
 		Rat.Minimap:Hide()
 	elseif Rat_Settings["Minimap"] == 1 then

@@ -1,7 +1,7 @@
 ## Interface: 20400
 ## Title: Rat |cff7fff7fby |cffF5F54AAtreyyo
 ## Author: Atreyyo
-## Version: 1.9.6
+## Version: 2.0
 ## Notes: A cooldown tracker for all RAT users in raid
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
