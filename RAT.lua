@@ -48,7 +48,7 @@ cdtbl = {
 	["Bloodlust"] = "Interface\\Icons\\Ability_Shaman_Bloodlust",
 	["Chain Lightning"] = "Interface\\Icons\\Spell_Nature_ChainLightning",
 	["Elemental Mastery"] = "Interface\\Icons\\Spell_Nature_WispHeal",
-	
+	["Misdirection"] = "Interface\\Icons\\Ability_Hunter_Misdirection",
 }
 
 Rat_Font = {
@@ -1869,6 +1869,38 @@ function Rat.Options:ConfigFrame()
 	text:SetTextColor(1, 1, 1, 1)
 	text:SetShadowOffset(2,-2)
     text:SetText("Tranquilizing Shot")
+
+	-- Misdirection
+	local Checkbox = CreateFrame("CheckButton", "Misdirection", self.Hunter, "UICheckButtonTemplate")
+	Checkbox:SetPoint("CENTER",0,35)
+	Checkbox:SetWidth(35)
+	Checkbox:SetHeight(35)
+	Checkbox:SetFrameStrata("LOW")
+	Checkbox:SetScript("OnClick", function () 
+		if Checkbox:GetChecked() == nil then 
+			Rat_Settings["Misdirection"] = nil
+		elseif Checkbox:GetChecked() == 1 then 
+			Rat_Settings["Misdirection"] = 1 
+		end
+		end)
+	Checkbox:SetScript("OnEnter", function() 
+		GameTooltip:SetOwner(Checkbox, "ANCHOR_RIGHT");
+		GameTooltip:SetText("Turn on/off", 255, 255, 0, 1, 1);
+		GameTooltip:Show()
+	end)
+	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	Checkbox:SetChecked(Rat_Settings["Misdirection"])
+	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
+	Icon:SetTexture(cdtbl["Misdirection"])
+	Icon:SetWidth(25)
+	Icon:SetHeight(25)
+	Icon:SetPoint("CENTER",0,0)
+	local text = self.Hunter:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", Checkbox, "CENTER", 0, 25)
+    text:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	text:SetTextColor(1, 1, 1, 1)
+	text:SetShadowOffset(2,-2)
+    text:SetText("Misdirection")
 	
 	-- Druid
 	
