@@ -33,7 +33,7 @@ cdtbl = {
 	["Berserker Rage"] = "Interface\\Icons\\Spell_Nature_AncestralGuardian",
 	["Pummel"] = "Interface\\Icons\\INV_Gauntlets_04",
 	["Disarm"] = "Interface\\Icons\\Ability_Warrior_Disarm",
-	["Major Soulstone"] = "Interface\\Icons\\INV_Misc_Orb_04",
+	["Master Soulstone"] = "Interface\\Icons\\INV_Misc_Orb_04",
 	["Lay on Hands"] = "Interface\\Icons\\Spell_Holy_LayOnHands",
 	["Blessing of Protection"] = "Interface\\Icons\\Spell_Holy_SealOfProtection",
 	["Divine Shield"] = "Interface\\Icons\\Spell_Holy_DivineIntervention",
@@ -190,6 +190,7 @@ end
 Rat:RegisterEvent("ADDON_LOADED") 
 Rat:RegisterEvent("RAID_ROSTER_UPDATE")
 Rat:RegisterEvent("PARTY_MEMBERS_CHANGED")
+Rat:RegisterEvent("PARTY_MEMBERS_CHANGED")
 Rat:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 Rat:RegisterEvent("CHAT_MSG_ADDON")
 Rat:RegisterEvent("BAG_UPDATE_COOLDOWN")
@@ -247,6 +248,16 @@ function Rat:OnEvent()
 		Rat:HideVersionNameFrames()
 		Rat:Update(true)
 		sendCds()
+	elseif (event == "PARTY_MEMBERS_CHANGED") then
+		if not GetRaidRosterInfo(1) then
+			getSpells()
+			getInvCd()
+			Rat:Cleardb()
+			Rat:HideVersionNameFrames()
+			Rat:Update(true)
+			sendCds()		
+		end
+	
 	elseif (event == "SPELL_UPDATE_COOLDOWN") then
 		getSpells()
 		getInvCd()
@@ -1379,17 +1390,17 @@ function Rat.Options:ConfigFrame()
 	
 	-- Warlock
 	
-	-- Major Soulstone
-	local Checkbox = CreateFrame("CheckButton", "Major Soulstone", self.Warlock, "UICheckButtonTemplate")
+	-- Master Soulstone
+	local Checkbox = CreateFrame("CheckButton", "Master Soulstone", self.Warlock, "UICheckButtonTemplate")
 	Checkbox:SetPoint("CENTER",0,80)
 	Checkbox:SetWidth(35)
 	Checkbox:SetHeight(35)
 	Checkbox:SetFrameStrata("LOW")
 	Checkbox:SetScript("OnClick", function () 
 		if Checkbox:GetChecked() == nil then 
-			Rat_Settings["Major Soulstone"] = nil
+			Rat_Settings["Master Soulstone"] = nil
 		elseif Checkbox:GetChecked() == 1 then 
-			Rat_Settings["Major Soulstone"] = 1 
+			Rat_Settings["Master Soulstone"] = 1 
 		end
 		end)
 	Checkbox:SetScript("OnEnter", function() 
@@ -1398,9 +1409,9 @@ function Rat.Options:ConfigFrame()
 		GameTooltip:Show()
 	end)
 	Checkbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	Checkbox:SetChecked(Rat_Settings["Major Soulstone"])
+	Checkbox:SetChecked(Rat_Settings["Master Soulstone"])
 	local Icon = Checkbox:CreateTexture(nil, 'ARTWORK',1)
-	Icon:SetTexture(cdtbl["Major Soulstone"])
+	Icon:SetTexture(cdtbl["Master Soulstone"])
 	Icon:SetWidth(25)
 	Icon:SetHeight(25)
 	Icon:SetPoint("CENTER",0,0)
@@ -1409,7 +1420,7 @@ function Rat.Options:ConfigFrame()
     text:SetFont("Fonts\\FRIZQT__.TTF", 12)
 	text:SetTextColor(1, 1, 1, 1)
 	text:SetShadowOffset(2,-2)
-    text:SetText("Major Soulstone")
+    text:SetText("Master Soulstone")
 	
 	-- Ritual of Souls
 	local Checkbox = CreateFrame("CheckButton", "Ritual of Souls", self.Warlock, "UICheckButtonTemplate")
@@ -2424,20 +2435,25 @@ function getInvCd()
         if GetBagName(rbag) then
             for rslot = 1, GetContainerNumSlots(rbag) do
 				local s_time, duration, enabled = GetContainerItemCooldown(rbag, rslot)
-				if enabled == 1 then
+				if s_time > 0 then					
 					local name = Rat:hyperlink_name(GetContainerItemLink(rbag, rslot))
+					--Rat:Print("1: "..s_time)
 					for i,_ in pairs(cdtbl) do
-						if i == name then
+						if strfind(GetContainerItemLink(rbag, rslot),i) then
+							--Rat:Print(i.." "..duration.." "..enabled)
 							if RatTbl[Rat_unit][i] == nil then RatTbl[Rat_unit][i] = { } end
 							if duration > 2.5 then
 								local timeleft = duration-(GetTime()-s_time)
+								
 								if (duration-math.floor(timeleft)) == 0 then
+									--Rat:Print("sending cd "..i)
 									SendAddonMessage("RATSYNC["..duration.."]("..i..")",timeleft,"RAID")
 									RatTbl[Rat_unit][i]["duration"] = timeleft+GetTime()
 									RatTbl[Rat_unit][i]["cd"] = duration
 									sendThrottle[i] = GetTime()
 								end
 								if sendThrottle[i] == nil or (GetTime() - sendThrottle[i]) > 10 then
+									--Rat:Print("sending cd "..i)
 									SendAddonMessage("RATSYNC["..duration.."]("..i..")",timeleft,"RAID")
 									RatTbl[Rat_unit][i]["duration"] = timeleft+GetTime()
 									RatTbl[Rat_unit][i]["cd"] = duration
@@ -2506,13 +2522,13 @@ function sendCds()
 			spellID = spellID + 1
 			spell = GetSpellName(spellID, BOOKTYPE_SPELL)
 		end
-	if sendThrottle["Major Soulstone"] == nil or (GetTime() - sendThrottle["Major Soulstone"]) > 10 then
-		if (RatTbl[Rat_unit]["Major Soulstone"]) then
-			if RatTbl[Rat_unit]["Major Soulstone"]["duration"]-GetTime() > 0 then
-				SendAddonMessage("RATSYNC["..RatTbl[Rat_unit]["Major Soulstone"]["cd"].."](Major Soulstone)",RatTbl[Rat_unit]["Major Soulstone"]["duration"]-GetTime(),"RAID")
+	if sendThrottle["Master Soulstone"] == nil or (GetTime() - sendThrottle["Master Soulstone"]) > 10 then
+		if (RatTbl[Rat_unit]["Master Soulstone"]) then
+			if RatTbl[Rat_unit]["Master Soulstone"]["duration"]-GetTime() > 0 then
+				SendAddonMessage("RATSYNC["..RatTbl[Rat_unit]["Master Soulstone"]["cd"].."](Master Soulstone)",RatTbl[Rat_unit]["Master Soulstone"]["duration"]-GetTime(),"RAID")
 			else
 			end
-			sendThrottle["Major Soulstone"] = GetTime()
+			sendThrottle["Master Soulstone"] = GetTime()
 		end
 	end
 	sendAddMsg = GetTime()
@@ -2537,8 +2553,14 @@ function Rat:InRaidCheck(name)
 				return true
 			end
 		end
-		return false
+	elseif GetNumPartyMembers() ~= 0 then
+		for i=1,GetNumPartyMembers() do
+			if name == UnitName("party"..i) then
+				return true
+			end
+		end		
 	end
+	return false
 end
 
 -- function to clear our database, we don't want cooldowns from people not in raid.
@@ -2554,12 +2576,22 @@ function Rat:Cleardb()
 				RatTbl[name]=nil
 			end
 		end
+	elseif GetNumPartyMembers() ~= 0 then
+		for name,_ in pairs(RatTbl) do
+			if name ~= UnitName("player") and not Rat:InRaidCheck(name) then
+				for ability, dura in pairs(RatTbl[name]) do
+					local rframe = name..ability
+					RatFrames[rframe]:Hide()
+				end
+				RatTbl[name]=nil
+			end
+		end	
 	else
 		for name,_ in pairs(RatTbl) do
 			if name ~= UnitName("player") then
 				for ability, dura in pairs(RatTbl[name]) do
 					local rframe = name..ability
-					RatFrames[rframe]:Hide()
+					if rframe ~= nil then RatFrames[rframe]:Hide() end
 				end
 				RatTbl[name]=nil
 			end
@@ -2618,6 +2650,21 @@ function Rat:GetClassColors(name)
 				end
 			end
 		end
+	else
+		for i=1,GetNumPartyMembers() do
+			if UnitName("party"..i) == name then
+				if UnitClass("party"..i) == "Warrior" then return 0.78, 0.61, 0.43,1
+				elseif UnitClass("party"..i) == "Hunter" then return 0.67, 0.83, 0.45
+				elseif UnitClass("party"..i) == "Mage" then return 0.41, 0.80, 0.94
+				elseif UnitClass("party"..i) == "Rogue" then return 1.00, 0.96, 0.41
+				elseif UnitClass("party"..i) == "Warlock" then return 0.58, 0.51, 0.79,1
+				elseif UnitClass("party"..i) == "Druid" then return 1, 0.49, 0.04,1
+				elseif UnitClass("party"..i) == "Shaman" then return 0.0, 0.44, 0.87	
+				elseif UnitClass("party"..i) == "Priest" then return 1.00, 1.00, 1.00
+				elseif UnitClass("party"..i) == "Paladin" then return 0.96, 0.55, 0.73
+				end
+			end
+		end	
 	end
 end
 
@@ -2694,6 +2741,21 @@ function Rat:GetClass(name)
 				elseif UnitClass("raid"..i) == "Shaman" then return "Shaman"
 				elseif UnitClass("raid"..i) == "Priest" then return "Priest"
 				elseif UnitClass("raid"..i) == "Paladin" then return "Paladin"
+				end
+			end
+		end
+	else
+		for i=1,GetNumPartyMembers() do
+			if UnitName("party"..i) == name then
+				if UnitClass("party"..i) == "Warrior" then return "Warrior"
+				elseif UnitClass("party"..i) == "Hunter" then return "Hunter"
+				elseif UnitClass("party"..i) == "Mage" then return "Mage"
+				elseif UnitClass("party"..i) == "Rogue" then return "Rogue"
+				elseif UnitClass("party"..i) == "Warlock" then return "Warlock"
+				elseif UnitClass("party"..i) == "Druid" then return "Druid"
+				elseif UnitClass("party"..i) == "Shaman" then return "Shaman"
+				elseif UnitClass("party"..i) == "Priest" then return "Priest"
+				elseif UnitClass("party"..i) == "Paladin" then return "Paladin"
 				end
 			end
 		end
