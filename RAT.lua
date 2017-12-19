@@ -1823,69 +1823,70 @@ function Rat:Update(force)
 		elseif Rat.Options.version ~= nil and (((GetRaidRosterInfo(1) and not IsRaidOfficer("player")) or (GetNumPartyMembers() ~= 0 and not UnitIsPartyLeader("player"))) and Rat.Options.version:IsVisible()) then
 			Rat.Options.version:Hide()
 		end
-		
+		Rat.Mainframe.Background.Top.Title:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]]+1)		
 		local db = Rat:SortDB()
-		
-		for i=1,getn(db) do
-			local name=db[i].name
-			local ability=db[i].ability
+		local i=1
+		for index=1,getn(db) do
+			local name=db[index].name
+			local ability=db[index].ability
 			local tname = name..ability
-			local texture = cdtbl[ability]
-			local bardecay = 1-((RatTbl[name][ability]["cd"]-(RatTbl[name][ability]["duration"]-GetTime())) / RatTbl[name][ability]["cd"])
-			local cdtime = rtime(RatTbl[name][ability]["duration"]-GetTime())
-			if bardecay > 1 then
-				bardecay = 1
-			end
-			if cdtime == nil then cdtime = 0 end
 			RatFrames[tname] = RatFrames[tname] or Rat:CreateFrame(tname)
 			local frame = RatFrames[tname]
-			Rat.Mainframe.Background.Top.Title:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]]+1)
-			frame:SetWidth(Rat.Mainframe:GetWidth()-4)
-			frame:SetHeight(22)
-			if Rat_Settings["invert abilities"] == nil then
-				frame:SetPoint("TOPLEFT",2,(-22*i)+2)
-			else
-				frame:SetPoint("TOPLEFT",2,(22*i))
-			end
-			frame.unit:SetTexture(Rat:GetClassColors(name))
-			frame.unit:SetGradientAlpha("Vertical", 1,1,1, 0, 1, 1, 1, 1)
-			frame.unitname:SetText(name)
-			frame.unitname:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-			frame.icon:SetTexture(texture)
-			frame.bar:SetWidth(bardecay*(Rat.Mainframe:GetWidth()-89))
-			frame.bar:SetTexture("Interface\\AddOns\\Rat\\media\\bartextures\\"..Rat_BarTexture[Rat_Settings["bartexture"]]..".tga",true)	
-			frame.bar:SetVertexColor(Rat_Settings["abilitybarcolor"]["r"],Rat_Settings["abilitybarcolor"]["g"],Rat_Settings["abilitybarcolor"]["b"],1)
-			frame.timer:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
-			frame.time:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
-			if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math.floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
-				if Rat_Settings[tname] == nil or (GetTime()-Rat_Settings[tname]) > 2 or (GetTime()-Rat_Settings[tname]) < 0 then
-					UIErrorsFrame:AddMessage(Rat_GetClassColors(name).." |cffFFFF00"..ability.." - READY!")
-					Rat_Settings[tname] = GetTime()
-				end
-			end
-			if cdtime ~= 0 then
-				frame.timer:SetText(ability)
-				frame.time:SetText(cdtime)
-				frame.timer:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-				frame.time:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-			end
-			if bardecay*(Rat.Mainframe:GetWidth()-89) > 0 then
-				frame.barglow:SetPoint("RIGHT", -(Rat.Mainframe:GetWidth()-88)+(bardecay*(Rat.Mainframe:GetWidth()-89)),0)
-				frame.barglow:Show()							
-				if Rat_Settings[Rat:GetClass(name)] == 1 then
-					if Rat_Settings[ability] == 1 then
-						frame:Show()
-						i = i+1
-					else
-						frame:Hide()
+					local texture = cdtbl[ability]
+					local bardecay = 1-((RatTbl[name][ability]["cd"]-(RatTbl[name][ability]["duration"]-GetTime())) / RatTbl[name][ability]["cd"])
+					local cdtime = rtime(RatTbl[name][ability]["duration"]-GetTime())
+					if bardecay > 1 then
+						bardecay = 1
 					end
-				else
-					frame:Hide()
-				end
-			else
-				frame.barglow:Hide()
-				frame:Hide()
-			end
+					if cdtime == nil then cdtime = 0 end
+					frame:SetWidth(Rat.Mainframe:GetWidth()-4)
+					frame:SetHeight(22)
+					if Rat_Settings["invert abilities"] == nil then
+						frame:SetPoint("TOPLEFT",2,(-22*i)+2)
+					else
+						frame:SetPoint("TOPLEFT",2,(22*i))
+					end
+					frame.unit:SetTexture(Rat:GetClassColors(name))
+					frame.unit:SetGradientAlpha("Vertical", 1,1,1, 0, 1, 1, 1, 1)
+					frame.unitname:SetText(name)
+					frame.unitname:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+					frame.icon:SetTexture(texture)
+					frame.bar:SetWidth(bardecay*(Rat.Mainframe:GetWidth()-89))
+					frame.bar:SetTexture("Interface\\AddOns\\Rat\\media\\bartextures\\"..Rat_BarTexture[Rat_Settings["bartexture"]]..".tga",true)	
+					frame.bar:SetVertexColor(Rat_Settings["abilitybarcolor"]["r"],Rat_Settings["abilitybarcolor"]["g"],Rat_Settings["abilitybarcolor"]["b"],1)
+					frame.timer:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
+					frame.time:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
+					if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math.floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
+						if Rat_Settings[tname] == nil or (GetTime()-Rat_Settings[tname]) > 2 or (GetTime()-Rat_Settings[tname]) < 0 then
+							UIErrorsFrame:AddMessage(Rat_GetClassColors(name).." |cffFFFF00"..ability.." - READY!")
+							Rat_Settings[tname] = GetTime()
+						end
+					end
+					if cdtime ~= 0 then
+						frame.timer:SetText(ability)
+						frame.time:SetText(cdtime)
+						frame.timer:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+						frame.time:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+					end
+					if bardecay*(Rat.Mainframe:GetWidth()-89) > 0 then
+						frame.barglow:SetPoint("RIGHT", -(Rat.Mainframe:GetWidth()-88)+(bardecay*(Rat.Mainframe:GetWidth()-89)),0)
+						frame.barglow:Show()
+
+						if Rat_Settings[Rat:GetClass(name)] == 1 then
+							if Rat_Settings[ability] == nil then
+								frame:Hide()
+							else
+								frame:Show()
+								i = i+1
+							end	
+						else
+							frame:Hide()							
+						end	
+					
+					else
+						frame.barglow:Hide()
+						frame:Hide()
+					end		
 		end
 	end
 end
