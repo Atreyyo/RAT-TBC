@@ -486,7 +486,7 @@ function Rat.Mainframe:ConfigFrame()
 	}
 	self:SetFrameStrata("LOW")
 	self:SetWidth(250) -- Set these to whatever height/width is needed 
-	self:SetHeight(22) -- for your Texture
+	self:SetHeight(21) -- for your Texture
 	self:SetPoint("CENTER",0,0)
 	self:SetMovable(1)
 	self:EnableMouse(1)
@@ -1480,10 +1480,11 @@ function getSpells()
 				if RatTbl[Rat_unit][spell] == nil then RatTbl[Rat_unit][spell] = { } end
 				if hasCooldown == 1 and duration > 2.5 then
 					local timeleft = duration-(GetTime()-start)
-						RatTbl[Rat_unit][spell]["duration"] = timeleft+GetTime()
-						RatTbl[Rat_unit][spell]["cd"] = duration
+					--Rat:AddCd(Rat_unit,spell,duration,timeleft+GetTime())
+					RatTbl[Rat_unit][spell]["duration"] = timeleft+GetTime()
+					RatTbl[Rat_unit][spell]["cd"] = duration
 				else
-					RatTbl[Rat_unit][spell]["duration"] = 0
+					--RatTbl[Rat_unit][spell]["duration"] = 0
 				end
 			end
 		end
@@ -1536,11 +1537,13 @@ end
 -- add an ability cooldown we got from a raidmember
 
 function Rat:AddCd(name,cdname,cd,duration)
-	if RatTbl[name] == nil then RatTbl[name] = {} end
-	if RatTbl[name][cdname] == nil then RatTbl[name][cdname] = {} end
-	RatTbl[name][cdname]["duration"] = duration+GetTime()
-	RatTbl[name][cdname]["cd"] = cd
-	Rat:Update()
+	if name ~= nil and cdname ~= nil and cd ~= nil and duration ~= nil then
+		if RatTbl[name] == nil then RatTbl[name] = {} end
+		if RatTbl[name][cdname] == nil then RatTbl[name][cdname] = {} end
+		RatTbl[name][cdname]["duration"] = duration+GetTime()
+		RatTbl[name][cdname]["cd"] = cd
+		Rat:Update()
+	end
 end
 
 -- function to check if a player is still in raid
@@ -1608,6 +1611,13 @@ function Rat:HideVersionNameFrames()
 				RatVersionTbl[name] = nil
 			end
 		end
+	elseif GetNumPartyMembers() ~= 0 then
+		for name,frame in pairs(VersionFTbl) do
+			if name ~= UnitName("player") and not Rat:InRaidCheck(name) then
+				frame:Hide()
+				RatVersionTbl[name] = nil
+			end
+		end	
 	else
 		for name,frame in pairs(VersionFTbl) do
 			if name ~= UnitName("player") then
@@ -1793,97 +1803,111 @@ end
 
 function Rat:Update(force)
 	if uptimer == nil or (GetTime() - uptimer > 0.1) then
-		uptimer = GetTime()	
-	if Rat_Settings["showhide"] == 1 then
-		if not Rat.Mainframe:IsVisible() then
-			Rat.Mainframe:Show()
+			uptimer = GetTime()	
+		if Rat_Settings["showhide"] == 1 then
+			if not Rat.Mainframe:IsVisible() then
+				Rat.Mainframe:Show()
+			end
+		else
+			if Rat.Mainframe:IsVisible() then
+				Rat.Mainframe:Hide()
+			end
 		end
-	else
-		if Rat.Mainframe:IsVisible() then
-			Rat.Mainframe:Hide()
+		if Rat_Settings["Minimap"] == nil and Rat.Minimap:IsVisible() then
+			Rat.Minimap:Hide()
+		elseif Rat_Settings["Minimap"] == 1 and not Rat.Minimap:IsVisible() then
+			Rat.Minimap:Show()
 		end
-	end
-	if Rat_Settings["Minimap"] == nil and Rat.Minimap:IsVisible() then
-		Rat.Minimap:Hide()
-	elseif Rat_Settings["Minimap"] == 1 and not Rat.Minimap:IsVisible() then
-		Rat.Minimap:Show()
-	end
-	if Rat.Options.version ~= nil and (((GetRaidRosterInfo(1) and IsRaidOfficer("player")) or (GetNumPartyMembers() ~= 0 and UnitIsPartyLeader("player"))) and not Rat.Options.version:IsVisible()) then
-		Rat.Options.version:Show()
-	elseif Rat.Options.version ~= nil and (((GetRaidRosterInfo(1) and not IsRaidOfficer("player")) or (GetNumPartyMembers() ~= 0 and not UnitIsPartyLeader("player"))) and Rat.Options.version:IsVisible()) then
-		Rat.Options.version:Hide()
-	end
-		local i =  0
-		Rat_sorted = sortDB(name)
-		for _, skey in ipairs(Rat_sorted) do
-			for name,_ in pairs(RatTbl) do
-				for ability, _ in pairs(RatTbl[name]) do
-					if RatTbl[name][ability]["duration"] == skey and RatTbl[name][ability]["cd"] ~= nil then 
-						local tname = name..ability
-						local texture = cdtbl[ability]
-						local bardecay = 1-((RatTbl[name][ability]["cd"]-(RatTbl[name][ability]["duration"]-GetTime())) / RatTbl[name][ability]["cd"])
-						local cdtime = rtime(RatTbl[name][ability]["duration"]-GetTime())
-						if bardecay > 1 then
-							bardecay = 1
-						end
-						if cdtime == nil then cdtime = 0 end
-						RatFrames[tname] = RatFrames[tname] or Rat:CreateFrame(tname)
-						local frame = RatFrames[tname]
-						Rat.Mainframe.Background.Top.Title:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]]+1)
-						frame:SetWidth(Rat.Mainframe:GetWidth()-4)
-						frame:SetHeight(22)
-						if Rat_Settings["invert abilities"] == nil then
-							frame:SetPoint("TOPLEFT",2,(-22*i)+(-21))
-						else
-							frame:SetPoint("TOPLEFT",2,(22*i)+22)
-						end
-						frame.unit:SetTexture(Rat:GetClassColors(name))
-						frame.unit:SetGradientAlpha("Vertical", 1,1,1, 0, 1, 1, 1, 1)
-						frame.unitname:SetText(name)
-						frame.unitname:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-						frame.icon:SetTexture(texture)
-						frame.bar:SetWidth(bardecay*(Rat.Mainframe:GetWidth()-89))
-						frame.bar:SetTexture("Interface\\AddOns\\Rat\\media\\bartextures\\"..Rat_BarTexture[Rat_Settings["bartexture"]]..".tga",true)	
-						frame.bar:SetVertexColor(Rat_Settings["abilitybarcolor"]["r"],Rat_Settings["abilitybarcolor"]["g"],Rat_Settings["abilitybarcolor"]["b"],1)
-						frame.timer:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
-						frame.time:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
-						if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math.floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
-							if Rat_Settings[tname] == nil or (GetTime()-Rat_Settings[tname]) > 2 or (GetTime()-Rat_Settings[tname]) < 0 then
-								UIErrorsFrame:AddMessage(Rat_GetClassColors(name).." |cffFFFF00"..ability.." - READY!")
-								Rat_Settings[tname] = GetTime()
-							end
-						end
-						if cdtime ~= 0 then
-							frame.timer:SetText(ability)
-							frame.time:SetText(cdtime)
-							frame.timer:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-							frame.time:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
-						end
-						if bardecay*(Rat.Mainframe:GetWidth()-89) > 0 then
-							frame.barglow:SetPoint("RIGHT", -(Rat.Mainframe:GetWidth()-88)+(bardecay*(Rat.Mainframe:GetWidth()-89)),0)
-							frame.barglow:Show()
-							
-							if Rat_Settings[Rat:GetClass(name)] == 1 then
-								if Rat_Settings[ability] == 1 then
-									frame:Show()
-									i = i+1
-								else
-									frame:Hide()
-								end
-							else
-								Rat.Mainframe:SetHeight(22+(22*i))
-								Rat.Mainframe.Background.Tab1:SetHeight(Rat.Mainframe:GetHeight()-16)
-								frame:Hide()
-							end
-						else
-							frame.barglow:Hide()
-							frame:Hide()
-						end
-					end
+		if Rat.Options.version ~= nil and (((GetRaidRosterInfo(1) and IsRaidOfficer("player")) or (GetNumPartyMembers() ~= 0 and UnitIsPartyLeader("player"))) and not Rat.Options.version:IsVisible()) then
+			Rat.Options.version:Show()
+		elseif Rat.Options.version ~= nil and (((GetRaidRosterInfo(1) and not IsRaidOfficer("player")) or (GetNumPartyMembers() ~= 0 and not UnitIsPartyLeader("player"))) and Rat.Options.version:IsVisible()) then
+			Rat.Options.version:Hide()
+		end
+		
+		local db = Rat:SortDB()
+		
+		for i=1,getn(db) do
+			local name=db[i].name
+			local ability=db[i].ability
+			local tname = name..ability
+			local texture = cdtbl[ability]
+			local bardecay = 1-((RatTbl[name][ability]["cd"]-(RatTbl[name][ability]["duration"]-GetTime())) / RatTbl[name][ability]["cd"])
+			local cdtime = rtime(RatTbl[name][ability]["duration"]-GetTime())
+			if bardecay > 1 then
+				bardecay = 1
+			end
+			if cdtime == nil then cdtime = 0 end
+			RatFrames[tname] = RatFrames[tname] or Rat:CreateFrame(tname)
+			local frame = RatFrames[tname]
+			Rat.Mainframe.Background.Top.Title:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]]+1)
+			frame:SetWidth(Rat.Mainframe:GetWidth()-4)
+			frame:SetHeight(22)
+			if Rat_Settings["invert abilities"] == nil then
+				frame:SetPoint("TOPLEFT",2,(-22*i)+2)
+			else
+				frame:SetPoint("TOPLEFT",2,(22*i))
+			end
+			frame.unit:SetTexture(Rat:GetClassColors(name))
+			frame.unit:SetGradientAlpha("Vertical", 1,1,1, 0, 1, 1, 1, 1)
+			frame.unitname:SetText(name)
+			frame.unitname:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+			frame.icon:SetTexture(texture)
+			frame.bar:SetWidth(bardecay*(Rat.Mainframe:GetWidth()-89))
+			frame.bar:SetTexture("Interface\\AddOns\\Rat\\media\\bartextures\\"..Rat_BarTexture[Rat_Settings["bartexture"]]..".tga",true)	
+			frame.bar:SetVertexColor(Rat_Settings["abilitybarcolor"]["r"],Rat_Settings["abilitybarcolor"]["g"],Rat_Settings["abilitybarcolor"]["b"],1)
+			frame.timer:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
+			frame.time:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
+			if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math.floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
+				if Rat_Settings[tname] == nil or (GetTime()-Rat_Settings[tname]) > 2 or (GetTime()-Rat_Settings[tname]) < 0 then
+					UIErrorsFrame:AddMessage(Rat_GetClassColors(name).." |cffFFFF00"..ability.." - READY!")
+					Rat_Settings[tname] = GetTime()
 				end
+			end
+			if cdtime ~= 0 then
+				frame.timer:SetText(ability)
+				frame.time:SetText(cdtime)
+				frame.timer:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+				frame.time:SetFont("Interface\\AddOns\\Rat\\fonts\\"..Rat_Font[Rat_Settings["font"]]..".TTF", Rat_FontSize[Rat_Settings["font"]])
+			end
+			if bardecay*(Rat.Mainframe:GetWidth()-89) > 0 then
+				frame.barglow:SetPoint("RIGHT", -(Rat.Mainframe:GetWidth()-88)+(bardecay*(Rat.Mainframe:GetWidth()-89)),0)
+				frame.barglow:Show()							
+				if Rat_Settings[Rat:GetClass(name)] == 1 then
+					if Rat_Settings[ability] == 1 then
+						frame:Show()
+						i = i+1
+					else
+						frame:Hide()
+					end
+				else
+					frame:Hide()
+				end
+			else
+				frame.barglow:Hide()
+				frame:Hide()
 			end
 		end
 	end
+end
+
+function Rat:SortDB()
+	local tempdb={}
+	local i=1
+	for name,_ in pairs(RatTbl) do
+		for ability,_ in pairs(RatTbl[name]) do
+			if RatTbl[name][ability]["duration"] ~= nil and RatTbl[name][ability]["cd"] ~= nil then
+				tempdb[i] = {
+					["name"] = name,
+					["ability"] = ability,
+					["duration"] = RatTbl[name][ability]["duration"],
+					["cd"] = RatTbl[name][ability]["cd"],
+				}
+				i=i+1
+			end
+		end
+	end
+	table.sort(tempdb, function(a,b) return a.duration>b.duration end)
+	return tempdb
 end
 
 -- slash commands
@@ -1952,23 +1976,16 @@ function rtime(left)
 end
 
 function testsort()
-	local sorted = { 
-		["test1"] = {
-			["test1-1"] = 987,
-			["test1-2"] = 123,
-			["test1-3"] = 321,
-		},
-		["test2"] = {
-			["test2-1"] = 312,
-			["test2-2"] = 857,
-			["test2-3"] = 456,
-		},
-		["test3"] = {
-			["test3-1"] = 768,
-			["test3-2"] = 98,
-			["test3-3"] = 1456,
-		},
-	}
-	table.sort(sorted, function(a,b) return a["test"]>b end)
-	return sortedKeys
+	local temp=Rat:SortDB()
+	for n in pairs(temp) do
+	Rat:Print(temp[n].name.." "..temp[n].ability.." "..temp[n].duration.." "..temp[n].cd)
+	end
+end
+
+function printdb()
+	for n in pairs(RatTbl) do
+		for v in pairs(RatTbl[n]) do
+			Rat:Print(n.." "..v.." ")
+		end
+	end
 end
