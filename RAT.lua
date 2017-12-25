@@ -9,7 +9,28 @@ Rat.Minimap = CreateFrame("Frame",nil,Minimap) -- Minimap Frame
 Rat.Version = CreateFrame("Frame","RVF",UIParent) -- Create Versionframe
 Rat_Version = GetAddOnMetadata("Rat", "Version")
 
+-- local variables // Zedar
+local getSpells 
+local getInvCd
+local getThrottle
 
+local LOCAL_PLAYER_CLASS = UnitClass("player")
+
+local RAT_PlayerSpells = {}
+
+local RAT_InitializePlayerSpells
+
+-- local global variables // Zedar
+-- Local variables can speed up lookup time by ~30%
+local GetTime = GetTime 
+local UnitClass = UnitClass 
+local math = math 
+local math_floor = math.floor 
+local string = string 
+local strfind = strfind 
+local string_sub = string.sub 
+local GetSpellCooldown = GetSpellCooldown
+local GetBagName = GetBagName 
 
 -- Variables
 
@@ -246,6 +267,8 @@ function RatDefault()
 	if Rat_Settings["scale"] == nil then
 		Rat_Settings["scale"] = 1
 	end
+	
+	RAT_InitializePlayerSpells()
 end
 -- Register events
 
@@ -276,12 +299,12 @@ function Rat:OnEvent()
 		sendCds()
 		Rat:Update(true)
 	elseif (event == "CHAT_MSG_ADDON") then
-		if string.sub(arg1,1,3) == "RAT" then
+		if string_sub(arg1,1,3) == "RAT" then
 			if Rat_unit ~= arg4 then 
-				if string.sub(arg1,4,7) == "SYNC" then
-					local cd = string.sub(arg1, string.find(arg1, "[", 1, true)+1, string.find(arg1, "]", 1, true)-1)
+				if string_sub(arg1,4,7) == "SYNC" then
+					local cd = string_sub(arg1, string.find(arg1, "[", 1, true)+1, string.find(arg1, "]", 1, true)-1)
 					local duration = arg2
-					local cdname = string.sub(arg1, string.find(arg1, "(", 1, true)+1, string.find(arg1, ")", 1, true)-1)
+					local cdname = string_sub(arg1, string.find(arg1, "(", 1, true)+1, string.find(arg1, ")", 1, true)-1)
 					local name = arg4
 					Rat:AddCd(name,cdname,cd,duration) 
 					getSpells()
@@ -289,14 +312,14 @@ function Rat:OnEvent()
 					sendCds()
 					Rat:Update(true)
 				end
-				if string.sub(arg1,4,10) == "VERSION" then
-					if string.sub(arg1,11,15) == "CHECK" then
+				if string_sub(arg1,4,10) == "VERSION" then
+					if string_sub(arg1,11,15) == "CHECK" then
 						if sendThrottle["version"] == nil or (GetTime() - sendThrottle["version"]) > 10 then
 							SendAddonMessage("RATVERSIONSYNC",Rat_Version,"RAID")
 							sendThrottle["versioncheck"] = GetTime()
 						end
 					end
-					if string.sub(arg1,11,15) == "SYNC" then
+					if string_sub(arg1,11,15) == "SYNC" then
 						RatVersionTbl[arg4] = arg2
 						Rat.Version:Check()
 					end
@@ -1444,7 +1467,7 @@ function getInvCd()
 							if duration > 2.5 then
 								local timeleft = duration-(GetTime()-s_time)
 								
-								if (duration-math.floor(timeleft)) == 0 then
+								if (duration-math_floor(timeleft)) == 0 then
 									--Rat:Print("sending cd "..i)
 									SendAddonMessage("RATSYNC["..duration.."]("..i..")",timeleft,"RAID")
 									RatTbl[Rat_unit][i]["duration"] = timeleft+GetTime()
@@ -1469,33 +1492,24 @@ function getInvCd()
 	end
 end
 
+
+--[[ Optimized version, checks only spells that are tracked 
+]]--
 function getSpells()
-	local spellID = 1
-	local spell = GetSpellName(spellID, BOOKTYPE_SPELL)
-	if RatTbl[Rat_unit] == nil then RatTbl[Rat_unit] = { } end
-	while (spell) do
-		local start, duration, hasCooldown = GetSpellCooldown(spellID, BOOKTYPE_SPELL)
-		for i,v in pairs(cdtbl) do
-			if i == spell then
-				if RatTbl[Rat_unit][spell] == nil then RatTbl[Rat_unit][spell] = { } end
-				if hasCooldown == 1 and duration > 2.5 then
-					local timeleft = duration-(GetTime()-start)
-					--Rat:AddCd(Rat_unit,spell,duration,timeleft+GetTime())
-					RatTbl[Rat_unit][spell]["duration"] = timeleft+GetTime()
-					RatTbl[Rat_unit][spell]["cd"] = duration
-				else
-					--RatTbl[Rat_unit][spell]["duration"] = 0
-				end
-			end
+for spell in pairs(RAT_PlayerSpells) do 
+local start, duration, hasCooldown = GetSpellCooldown(spell)
+	if RatTbl[Rat_unit][spell] == nil then RatTbl[Rat_unit][spell] = { } end
+		if hasCooldown == 1 and duration > 2.5 then
+			local timeleft = duration-(GetTime()-start)
+			RatTbl[Rat_unit][spell]["duration"] = timeleft+GetTime()
+			RatTbl[Rat_unit][spell]["cd"] = duration
+		else
+			--RatTbl[Rat_unit][spell]["duration"] = 0
 		end
-			
-		spellID = spellID + 1
-		spell = GetSpellName(spellID, BOOKTYPE_SPELL)
-	end
-end
+	end 
+end 
 
 -- function to send our cooldowns to the raid
-
 function sendCds()
 		local spellID = 1
 		local spell = GetSpellName(spellID, BOOKTYPE_SPELL)
@@ -1507,7 +1521,7 @@ function sendCds()
 				
 					if hasCooldown == 1 and duration > 2.5 then
 					local timeleft = duration-(GetTime()-start)
-						if (RatTbl[Rat_unit][i]["cd"]-math.floor(timeleft)) == 0 then
+						if (RatTbl[Rat_unit][i]["cd"]-math_floor(timeleft)) == 0 then
 							SendAddonMessage("RATSYNC["..duration.."]("..i..")",timeleft,"RAID")
 							sendThrottle[i] = GetTime()
 						end
@@ -1856,7 +1870,7 @@ function Rat:Update(force)
 					frame.bar:SetVertexColor(Rat_Settings["abilitybarcolor"]["r"],Rat_Settings["abilitybarcolor"]["g"],Rat_Settings["abilitybarcolor"]["b"],1)
 					frame.timer:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
 					frame.time:SetTextColor(Rat_Settings["abilitytextcolor"]["r"],Rat_Settings["abilitytextcolor"]["g"],Rat_Settings["abilitytextcolor"]["b"])
-					if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math.floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
+					if Rat_Settings["Notify"] == 1 and Rat_Settings[Rat:GetClass(name)] == 1 and Rat_Settings[ability] == 1 and math_floor(RatTbl[name][ability]["duration"]-GetTime()) == 0 then
 						if Rat_Settings[tname] == nil or (GetTime()-Rat_Settings[tname]) > 2 or (GetTime()-Rat_Settings[tname]) < 0 then
 							UIErrorsFrame:AddMessage(Rat_GetClassColors(name).." |cffFFFF00"..ability.." - READY!")
 							Rat_Settings[tname] = GetTime()
@@ -1963,8 +1977,8 @@ end
 -- function to format time into 00:00
 
 function rtime(left)
-	local min = math.floor(left / 60)
-	local sec = math.floor(math.fmod(left, 60))
+	local min = math_floor(left / 60)
+	local sec = math_floor(math.fmod(left, 60))
 
 	if (this.min == min and this.sec == sec) then
 		return nil
@@ -1990,3 +2004,16 @@ function printdb()
 		end
 	end
 end
+
+function RAT_InitializePlayerSpells()
+-- Initialize player cooldowns to track, may require event
+local spells_found = 0 
+for SpellName in pairs(cdtbl) do 
+	if GetSpellCooldown(SpellName) then 
+	spells_found = spells_found+1
+	RAT_PlayerSpells[SpellName] = true 
+	end 
+end 
+assert(spells_found>0, "RAT DEBUG: No player spells found [Zedar]")
+end 
+
