@@ -53,9 +53,11 @@ cdtbl = {
 	["Berserker Rage"] = "Interface\\Icons\\Spell_Nature_AncestralGuardian",
 	["Pummel"] = "Interface\\Icons\\INV_Gauntlets_04",
 	["Disarm"] = "Interface\\Icons\\Ability_Warrior_Disarm",	
-	["Intervene"] = "Interface\\Icons\\Ability_Warrior_Intervene",
+	["Intervene"] = "Interface\\Icons\\Ability_Warrior_VictoryRush",
 	["Mocking Blow"] = "Interface\\Icons\\Ability_Warrior_PunishingBlow",
 	["Taunt"] = "Interface\\Icons\\Spell_Nature_Reincarnation",
+	["Challenging Shout"] = "Interface\\Icons\\Ability_BullRush",
+	["Last Stand"] = "Interface\\Icons\\Spell_Holy_AshesToAshes",
 	
 	-- Warlock
 	["Master Soulstone"] = "Interface\\Icons\\INV_Misc_Orb_04",	
@@ -93,7 +95,6 @@ cdtbl = {
 	-- Druid
 	["Innervate"] = "Interface\\Icons\\Spell_Nature_Lightning",
 	["Challenging Roar"] = "Interface\\Icons\\Ability_Druid_ChallangingRoar",
-	["Challenging Shout"] = "Interface\\Icons\\Ability_BullRush",
 	["Rebirth"] = "Interface\\Icons\\Spell_Nature_Reincarnation",
 	["Nature\'s Swiftness"] = "Interface\\Icons\\Spell_Nature_RavenForm",
 	
@@ -128,9 +129,11 @@ RatAbilityMenu = {
 		["Berserker Rage"] = "Interface\\Icons\\Spell_Nature_AncestralGuardian",
 		["Pummel"] = "Interface\\Icons\\INV_Gauntlets_04",
 		["Disarm"] = "Interface\\Icons\\Ability_Warrior_Disarm",	
-		["Intervene"] = "Interface\\Icons\\Ability_Warrior_Intervene",
+		["Intervene"] = "Interface\\Icons\\Ability_Warrior_VictoryRush",
 		["Mocking Blow"] = "Interface\\Icons\\Ability_Warrior_PunishingBlow",
 		["Taunt"] = "Interface\\Icons\\Spell_Nature_Reincarnation",
+		["Challenging Shout"] = "Interface\\Icons\\Ability_BullRush",
+		["Last Stand"] = "Interface\\Icons\\Spell_Holy_AshesToAshes",
 	},
 	["Warlock"] = {
 		["Master Soulstone"] = "Interface\\Icons\\INV_Misc_Orb_04",	
@@ -168,7 +171,6 @@ RatAbilityMenu = {
 	["Druid"] = {
 		["Innervate"] = "Interface\\Icons\\Spell_Nature_Lightning",
 		["Challenging Roar"] = "Interface\\Icons\\Ability_Druid_ChallangingRoar",
-		["Challenging Shout"] = "Interface\\Icons\\Ability_BullRush",
 		["Rebirth"] = "Interface\\Icons\\Spell_Nature_Reincarnation",
 		["Nature\'s Swiftness"] = "Interface\\Icons\\Spell_Nature_RavenForm",
 	},
@@ -259,6 +261,7 @@ function RatDefault()
 	
 	if Rat_unit == nil then 
 		Rat_unit = UnitName("player") 
+		if RatTbl[Rat_unit] == nil then RatTbl[Rat_unit] = { } end
 	end
 	
 	if Rat_Settings["showhide"] == nil then 
@@ -279,6 +282,7 @@ Rat:RegisterEvent("PARTY_MEMBERS_CHANGED")
 Rat:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 Rat:RegisterEvent("CHAT_MSG_ADDON")
 Rat:RegisterEvent("BAG_UPDATE_COOLDOWN")
+Rat:RegisterEvent("LEARNED_SPELL_IN_TAB")
 
 -- function to handle events
 
@@ -350,9 +354,11 @@ function Rat:OnEvent()
 		sendCds()
 		Rat:Update()
 	elseif (event == "BAG_UPDATE_COOLDOWN") then
-	getInvCd()
-	sendCds()
-	Rat:Update()
+		getInvCd()
+		sendCds()
+		Rat:Update()
+	elseif (event == "LEARNED_SPELL_IN_TAB") then
+		RAT_InitializePlayerSpells()
 	end
 end
 
@@ -1057,7 +1063,7 @@ function Rat.Options:ConfigFrame()
 					end
 					
 					local Checkbox = CreateFrame("CheckButton", ability, self["tab"..i], "UICheckButtonTemplate")
-					Checkbox:SetPoint("TOPLEFT",75+(x*180),-(y*80)-75)
+					Checkbox:SetPoint("TOPLEFT",75+(x*150),-(y*80)-75)
 					Checkbox:SetWidth(58)
 					Checkbox:SetHeight(62)
 					Checkbox:SetFrameStrata("LOW")
@@ -1496,6 +1502,7 @@ end
 --[[ Optimized version, checks only spells that are tracked 
 ]]--
 function getSpells()
+if RatTbl[Rat_unit] == nil then RatTbl[Rat_unit] = { } end
 for spell in pairs(RAT_PlayerSpells) do 
 local start, duration, hasCooldown = GetSpellCooldown(spell)
 	if RatTbl[Rat_unit][spell] == nil then RatTbl[Rat_unit][spell] = { } end
@@ -1815,8 +1822,8 @@ end
 
 -- update function
 
-function Rat:Update(force)
-	if uptimer == nil or (GetTime() - uptimer > 0.1) then
+function Rat:Update()
+	if uptimer == nil or (GetTime() - uptimer > 0.01) then
 			uptimer = GetTime()	
 		if Rat_Settings["showhide"] == 1 then
 			if not Rat.Mainframe:IsVisible() then
@@ -2007,13 +2014,13 @@ end
 
 function RAT_InitializePlayerSpells()
 -- Initialize player cooldowns to track, may require event
-local spells_found = 0 
-for SpellName in pairs(cdtbl) do 
-	if GetSpellCooldown(SpellName) then 
-	spells_found = spells_found+1
-	RAT_PlayerSpells[SpellName] = true 
+	local spells_found = 0 
+	for SpellName in pairs(cdtbl) do 
+		if GetSpellName(SpellName) then 
+		spells_found = spells_found+1
+		RAT_PlayerSpells[SpellName] = true 
+		end 
 	end 
+--Rat:Print("RAT DEBUG: No player spells found")
+--assert(spells_found>0, "RAT DEBUG: No player spells found [Zedar]")
 end 
-assert(spells_found>0, "RAT DEBUG: No player spells found [Zedar]")
-end 
-

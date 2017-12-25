@@ -1,7 +1,7 @@
 ## Interface: 20400
 ## Title: RAT |cff7fff7fby |cffF5F54AAtreyyo
 ## Author: Atreyyo
-## Version: 2.1
+## Version: 2.2
 ## Notes: Tracks and shares your cooldown with others
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
